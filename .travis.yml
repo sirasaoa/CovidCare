@@ -10,6 +10,7 @@ jobs:
 
     - stage: Run Tests
       script:
+      - chmod +x gradlew
       - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleDebug
 
       after_success:
