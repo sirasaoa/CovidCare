@@ -41,4 +41,6 @@ jobs:
         prerelease: true
         overwrite: true
         target_commitish: $TRAVIS_COMMIT
-        
+        on:
+          all_branches: true
+          
