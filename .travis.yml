@@ -36,8 +36,10 @@ jobs:
       deploy:
         provider: releases
         api_key: $GITHUB_API_KEY
-        file: "./*.apk"
+        file: "./app-release-unsigned.apk"
         name: android-build-$TRAVIS_TAG
+        body: Automatic build of $TRAVIS_BRANCH ($TRAVIS_COMMIT) built by Travis CI on $(date +'%F %T %Z').
         skip_cleanup: true
+        overwrite: true
         on:
           all_branches: true
