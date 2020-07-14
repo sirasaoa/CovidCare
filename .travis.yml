@@ -27,10 +27,16 @@ jobs:
       #Deploy apk to GitHub Releases
       deploy:
         provider: releases
-        api_key: $GITHUB_API_KEY
+        token: $GITHUB_API_KEY
         file: "*.apk"
         skip_cleanup: true
+        name: dev-build-$TRAVIS_TAG
+          body: Automatic build of $TRAVIS_BRANCH ($TRAVIS_COMMIT) built by Travis CI on $(date +'%F %T %Z').
         prerelease: true
         overwrite: true
+        target_commitish: $TRAVIS_COMMIT
+        on:
+          tags: true
         on:
           all_branches: true
+  
