@@ -8,7 +8,7 @@ jobs:
       script:
       - docker build -t sirasaoa/build-android .
 
-    - stage: Run Tests
+    - stage: Build Debug
       script:
       - chmod +x gradlew
       - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleDebug
@@ -19,5 +19,27 @@ jobs:
             
     - stage: Deploy Release Archive
       script:
+      - chmod +x gradlew
       - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleRelease
       - cp ./app/build/outputs/apk/release/*.apk .
+
+      #Deploy apk to GitHub Releases
+      before_deploy:
+        # Set up git user name and tag this commit
+        - git config --local user.name "sirasaoa"
+        - git config --local user.email "sirasaoapoorva@gmail.com"
+        - export TRAVIS_TAG=${$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+        - git tag $TRAVIS_TAG
+
+      deploy:
+        provider: releases
+        api_key: $GITHUB_API_KEY
+        file: "*.apk"
+        skip_cleanup: true
+        name: android-build-$TRAVIS_TAG
+        body: Automatic build of $TRAVIS_BRANCH ($TRAVIS_COMMIT) built by Travis CI on $(date +'%F %T %Z').
+        prerelease: true
+        overwrite: true
+        target_commitish: $TRAVIS_COMMIT
+        on:
+          tags: true
