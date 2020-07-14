@@ -34,7 +34,7 @@ jobs:
 
       deploy:
         provider: releases
-        token: $GITHUB_API_KEY
+        api_key: $GITHUB_API_KEY
         file: "*.apk"
         skip_cleanup: true
         on:
