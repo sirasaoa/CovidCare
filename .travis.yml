@@ -4,9 +4,9 @@ services:
 
 jobs:
   include:
-    - stage: Build Docker Image
-      script:
-      - docker build -t sirasaoa/build-android .
+#     - stage: Build Docker Image
+#       script:
+#       - docker build -t sirasaoa/build-android .
 
     - stage: Build Debug
       script:
@@ -41,5 +41,4 @@ jobs:
         prerelease: true
         overwrite: true
         target_commitish: $TRAVIS_COMMIT
-        on:
-          tags: true
+        
