@@ -23,6 +23,7 @@ jobs:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
       - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleRelease
       - cp ./app/build/outputs/apk/release/*.apk .
+      - ls -l
 
       #Deploy apk to GitHub Releases
       before_deploy:
