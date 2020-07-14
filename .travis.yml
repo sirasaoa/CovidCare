@@ -8,18 +8,19 @@ jobs:
 #       script:
 #       - docker build -t sirasaoa/build-android .
 
-    - stage: Build Debug
-      script:
-      - chmod +x gradlew
-      - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleDebug
+    # - stage: Build Debug
+    #   script:
+    #   - chmod +x gradlew
+    #   - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleDebug
 
-      after_success:
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-      - docker push sirasaoa/build-android
+    #   after_success:
+    #   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    #   - docker push sirasaoa/build-android
             
     - stage: Deploy Release Archive
       script:
       - chmod +x gradlew
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
       - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleRelease
       - cp ./app/build/outputs/apk/release/*.apk .
 
@@ -29,7 +30,6 @@ jobs:
         api_key: $GITHUB_API_KEY
         file: "*.apk"
         skip_cleanup: true
-        name: dev-build-$TRAVIS_TAG
         prerelease: true
         overwrite: true
         on:
