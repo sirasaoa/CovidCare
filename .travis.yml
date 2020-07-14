@@ -23,7 +23,6 @@ jobs:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
       - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleRelease
       - cp ./app/build/outputs/apk/release/*.apk .
-      - ls -l
 
       #Deploy apk to GitHub Releases
       before_deploy:
@@ -31,7 +30,7 @@ jobs:
       - git config --local user.name "sirasaoa"
       - git config --local user.email "sirasaoapoorva@gmail.com"
       - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-      - git tag $TRAVIS_TAG
+      - git tag -f $TRAVIS_TAG
 
       deploy:
         provider: releases
