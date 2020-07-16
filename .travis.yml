@@ -1,0 +1,45 @@
+sudo: required
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: Build Docker Image
+      script:
+      - docker build -t sirasaoa/build-android .
+
+    - stage: Build Debug
+      script:
+      - chmod +x gradlew
+      - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleDebug
+
+      after_success:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+      - docker push sirasaoa/build-android
+            
+    - stage: Deploy Release Archive
+      script:
+      - chmod +x gradlew
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+      - docker run -it -e CI=true -v "$PWD":/app sirasaoa/build-android ./gradlew clean assembleRelease
+      - cp ./app/build/outputs/apk/release/*.apk .
+      - mv ./app-release-unsigned.apk ./app-release.apk
+
+      #Deploy apk to GitHub Releases
+      before_deploy:
+      # Set up git user name and tag this commit
+      - git config --local user.name "$GITHUB_USER"
+      - git config --local user.email "$GITHUB_EMAIL"
+      - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+      - git tag -f $TRAVIS_TAG
+
+      deploy:
+        provider: releases
+        api_key: $GITHUB_API_KEY
+        file: "./app-release.apk"
+        name: android-build-$TRAVIS_TAG
+        body: Automatic build of $TRAVIS_BRANCH ($TRAVIS_COMMIT) built by Travis CI on $(date +'%F %T %Z').
+        skip_cleanup: true
+        overwrite: true
+        on:
+          all_branches: true
